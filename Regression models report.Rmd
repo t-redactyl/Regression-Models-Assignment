@@ -1,6 +1,6 @@
 ---
 title: 'Transmission Type and MPG: Is Automatic or Manual Better?'
-output: word_document
+output: html_document
 ---
 
 ## Executive Summary
@@ -30,7 +30,7 @@ Let's consider a dataset of 32 car models from 1973-1974 which records the miles
 model1 <- lm(mpg ~ am.f, data = mtcars)
 ```
 
-We can see from Figure 2 that manual cars (24.39) have a significantly higher MPG than automatic cars (17.15). However, this model does not explain much of the variance in MPG, having an R^2 of `r round(summary(model1)$adj.r.squared, 3)`. Exploring the data further, we can see that a number of variables have very high correlations with MPG (see Figure 3 in the Supporting Appendix). Furthermore, some of these variables have a high relationship with transmission type, suggesting they may influence how transmission relates to MPG (Figure 2). In order to build a model predicting MPG including both transmission type and any additional covariates, variables were added into the model in the order of their strength of correlation with MPG (Figure 3). However, disp, hp and vs were not included as predictors as they were collinear (had a correlation at or above 0.8) with other possible predictors.
+We can see from Figure 1 that manual cars (24.39) have a significantly higher MPG than automatic cars (17.15). However, this model does not explain much of the variance in MPG, having an R^2 of `r round(summary(model1)$adj.r.squared, 3)`. Exploring the data further, we can see that a number of variables have very high correlations with MPG (see Figure 2 in the Supporting Appendix). Furthermore, some of these variables have a high relationship with transmission type, suggesting they may influence how transmission relates to MPG (Figure 2). In order to build a model predicting MPG including both transmission type and any additional covariates, variables were added into the model in the order of their strength of correlation with MPG (Figure 2). However, disp, hp and vs were not included as predictors as they were collinear (had a correlation at or above 0.8) with other possible predictors.
 
 ```{r mpg_predictors, message = FALSE, warning = FALSE, echo = FALSE}
 cor.list <- c()
@@ -41,7 +41,7 @@ outcome.cor <- function(predictor, ...) {
 cor.list <- sapply(mtcars[ , c(2:11)], outcome.cor)
 ```
 
-Figure 4 in the Supporting Appendix demonstrates the model building strategy. The predictors were entered one-by-one into a model containing transmission type. Only those that significantly improved model fit were retained. After all significant variables were entered into the model, the improvement to model fit by including interaction terms between these variables and transmission type was assessed. The two final models was one containing transmission type (am.f), weight (wt), and their interaction term (am.f * wt), and another containing the above as well as number of cylinders (cyl). The variance inflation factors (VIFs) of the two models are shown below:
+Figure 3 in the Supporting Appendix demonstrates the model building strategy. The predictors were entered one-by-one into a model containing transmission type. Only those that significantly improved model fit were retained. After all significant variables were entered into the model, the improvement to model fit by including interaction terms between these variables and transmission type was assessed. The two final models was one containing transmission type (am.f), weight (wt), and their interaction term (am.f * wt), and another containing the above as well as number of cylinders (cyl). The variance inflation factors (VIFs) of the two models are shown below:
 
 ```{r final_model_summary, echo = FALSE}
 require(car)
@@ -76,11 +76,11 @@ auto.predict.ci <- predict(final.model.auto, newdata = new.cars, interval = ("pr
 manual.predict.ci <- predict(final.model.manual, newdata = new.cars, interval = ("prediction"))
 ```
 
-At the mean weight for the sample (3217 lbs), both transmission types have a similar mean miles/gallon, with automatic cars having a mean of 19.24 MPG (95% CI: [`r round(auto.ci[2], 2)`, `r round(auto.ci[3], 2)`]) and and manual cars having a mean of 17.07 MPG (95% CI: [`r round(manual.ci[2], 2)`, `r round(manual.ci[3], 2)`]). However, as demonstrated in Figure 4, the mileage performance of each transmission type depends on how heavy the car is. The model predicts that automatic cars perform worse at lower car weights. For example, a 2000 lb automatic car would have a mean of 23.85 MPG (95% prediction interval: [`r round(auto.predict.ci[1,2], 2)`, `r round(auto.predict.ci[1,3], 2)`]), while a manual car of the same weight would have a mean of 28.13 (95% prediction interval: [`r round(manual.predict.ci[1,2], 2)`, `r round(manual.predict.ci[1,3], 2)`]). However, the model also predicts that conversely, automatic cars perform better at higher car weights. For example, a 4000 lb automatic car would have a mean of 16.27 MPG (95% prediction interval: [`r round(auto.predict.ci[2,2], 2)`, `r round(auto.predict.ci[2,3], 2)`]), while a manual car of the same weight would have a mean of 9.95 MPG (95% prediction interval: [`r round(manual.predict.ci[2,2], 2)`, `r round(manual.predict.ci[2,3], 2)`]).
+At the mean weight for the sample (3217 lbs), both transmission types have a similar mean miles/gallon, with automatic cars having a mean of 19.24 MPG (95% CI: [`r round(auto.ci[2], 2)`, `r round(auto.ci[3], 2)`]) and and manual cars having a mean of 17.07 MPG (95% CI: [`r round(manual.ci[2], 2)`, `r round(manual.ci[3], 2)`]). However, as demonstrated in Figure 3, the mileage performance of each transmission type depends on how heavy the car is. The model predicts that automatic cars perform worse at lower car weights. For example, a 2000 lb automatic car would have a mean of 23.85 MPG (95% prediction interval: [`r round(auto.predict.ci[1,2], 2)`, `r round(auto.predict.ci[1,3], 2)`]), while a manual car of the same weight would have a mean of 28.13 (95% prediction interval: [`r round(manual.predict.ci[1,2], 2)`, `r round(manual.predict.ci[1,3], 2)`]). However, the model also predicts that conversely, automatic cars perform better at higher car weights. For example, a 4000 lb automatic car would have a mean of 16.27 MPG (95% prediction interval: [`r round(auto.predict.ci[2,2], 2)`, `r round(auto.predict.ci[2,3], 2)`]), while a manual car of the same weight would have a mean of 9.95 MPG (95% prediction interval: [`r round(manual.predict.ci[2,2], 2)`, `r round(manual.predict.ci[2,3], 2)`]).
 
 ## Model assumptions
 
-Normality (Figure 1) and linearity (Figure 3) appear to be satisfied. Homoscedasticity appears to be satisfied for weight (Figure 3), but not transmission type (Figure 2). The plots of the residual versus fitted values indicate a pattern, where higher fitted values tend to have higher negative residuals (Figure 6). In addition, there are three car models with unusually high residuals (Merc 240DD, Fiat 128 and Toyota Corolla) indicating this model is a poor fit for both cars with high MPG (past about 28 MPG) and these three models. Moreover, the normal Q-Q plot of residuals indicates that errors are not normally distributed. The top hatvalues (leverage) and dfbetas (influence) demonstrate that while some values (especially the Maserati Bora) have high potential to be outliers, they don't appear to be distorting the trend lines when examined on the plot (Figure 7).
+Normality (Figure 2) and linearity (Figure 2) appear to be satisfied. Homoscedasticity appears to be satisfied for weight (Figure 2), but not transmission type (Figure 1). The plots of the residual versus fitted values indicate a pattern, where higher fitted values tend to have higher negative residuals (Figure 5). In addition, there are three car models with unusually high residuals (Merc 240DD, Fiat 128 and Toyota Corolla) indicating this model is a poor fit for both cars with high MPG (past about 28 MPG) and these three models. Moreover, the normal Q-Q plot of residuals indicates that errors are not normally distributed. The top hatvalues (leverage) and dfbetas (influence) demonstrate that while some values (especially the Maserati Bora) have potential to be outliers, the trend lines don't seem to be distorting around any given point (Figure 3).
 
 ```{r outlier_diagnostics, message = FALSE, warning = FALSE, fig.width = 14, fig.height = 6, echo = FALSE}
 mtcars$hatvalues <- round(hatvalues(final.model), 3)
@@ -98,26 +98,6 @@ Finally, the fact that the model explained 83% of the variance in MPG leaves 17%
 
 ### Exploratory data analyses
 
-```{r figure_1, message = FALSE, warning = FALSE, fig.width = 14, fig.height = 6, echo = FALSE}
-require(ggplot2)
-g <- ggplot(data=as.data.frame(mtcars$mpg), aes(mtcars$mpg)) + 
-        geom_histogram(aes(y = ..density..), binwidth = 2, 
-                 col = "#086199", 
-                 fill = "#0971B2") + 
-        xlab("Miles per gallon") + 
-        ylab("Density") + 
-        theme_bw() + 
-        ggtitle("Distribution of MPG") + 
-        theme(plot.title = element_text(lineheight=.8, face="bold")) + 
-        geom_line(aes(y = ..density.., colour = "Empirical"), stat = "density") + 
-        stat_function(fun = dnorm, aes(colour = "Normal"), 
-                    arg = list(mean = mean(mtcars$mpg), sd = sd(mtcars$mpg))) + 
-        scale_colour_manual(name = "Density", values = c("#B21212", "black"))
-g
-```
-
-**Figure 1.** Histogram of MPG.
-
 ```{r figure_2, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 6, echo = FALSE}
 require(ggplot2)
 g <- ggplot(mtcars, aes(am.f, mpg, fill = am.f)) +
@@ -130,7 +110,7 @@ g <- ggplot(mtcars, aes(am.f, mpg, fill = am.f)) +
 g
 ```
     
-**Figure 2.** Difference between mean MPG for automatic and manual transmissions.
+**Figure 1.** Difference between mean MPG for automatic and manual transmissions.
 
 ```{r figure_3, message = FALSE, warning = FALSE, cache = TRUE, fig.width = 14, fig.height = 10, echo = FALSE}
 require(ggplot2); require(GGally)
@@ -138,7 +118,7 @@ g = ggpairs(mtcars[ , 1:11], lower = list(continuous = "smooth", params = c(meth
 g
 ```
 
-**Figure 3.** Correlation and scatterplot matrix between all predictors in the dataset and the outcome, including linear fit lines with 95% confidence intervals.
+**Figure 2.** Correlation and scatterplot matrix between all predictors in the dataset and the outcome, including linear fit lines with 95% confidence intervals.
 
 ### Building the model
 
@@ -183,7 +163,7 @@ require(knitr)
 kable(lmfits)
 ```
 
-**Figure 4.** Comparison of model fit between nested models.
+**Figure 3.** Comparison of model fit between nested models.
 
 ### Plotting the final model
 
@@ -203,7 +183,7 @@ g <- ggplot(data=mtcars, aes(x=wt, y=mpg, colour=am.f)) +
 g        
 ```
 
-**Figure 5.** Plot demonstrating the final model, with the regression lines predicting MPG by weight separated by transmission type.
+**Figure 4.** Plot demonstrating the final model, with the regression lines predicting MPG by weight separated by transmission type.
 
 ### Diagnostic plots
 
@@ -212,20 +192,4 @@ par(mfrow = c(2,2))
 plot(final.model)
 ```
 
-**Figure 6.** Diagnostic plots demonstrating the behaviour of the residuals.
-
-```{r figure_6, message = FALSE, warning = FALSE, fig.width = 14, fig.height = 6, echo = FALSE}
-mtcars$name <- row.names(mtcars)
-g1 <- g + geom_text(data=subset(mtcars, abs(hatvalues) > 0.21), 
-                     aes(wt,mpg,label=name), size = 4, hjust=1, vjust=0) +
-        ggtitle("The Six Points with Highest Leverage (hatvalues)")
-
-g2 <- g + geom_text(data=subset(mtcars, abs(dfbetas) > 0.17), 
-                     aes(wt,mpg,label=name), size = 4, hjust=1, vjust=0) +
-        ggtitle("The Six Points with Highest Influence (dfbetas)")
-
-library(gridExtra)
-grid.arrange(g1, g2, nrow = 1, ncol = 2)
-```        
-
-**Figure 7.** Plots demonstrating the position of the 6 points with the highest leverage (left) and highest influence (right).
+**Figure 5.** Diagnostic plots demonstrating the behaviour of the residuals.
